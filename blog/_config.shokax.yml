@@ -1,0 +1,160 @@
+# ShokaX Theme Configuration
+# Documentation: https://docs.imlete.cn/ShokaX/
+
+title: LengFengY's Blog
+desc: A blog powered by Hexo and ShokaX
+lang: zh-CN
+# language: zh-CN
+
+# 站點短名（顯示於頁首 artboard / 小字樣），請填入你想要的短名以替换预设的 testName
+alternate: ""
+
+# Menus
+menu:
+  archives: /archives/ || list-alt
+  tags: /tags/ || tags
+  categories: /categories/ || th
+  about: /about/ || user
+
+# Social Links
+social:
+  github: https://github.com/Yamada-Ryo4 || github || "#191717"
+  twitter: https://x.com/Yamada_Ryoooo || twitter || "#00aff0"
+
+# Ensure theme has fallback images to avoid build-time errors
+index_images: []
+image_list: []
+
+# Use image_server to fetch random images from API
+# Theme will append ?query parameter to each request for cache busting
+# Image server URL will be called like: https://api.lixingyong.com/api/images?random_number
+
+# Avatar (now stored locally under `source/_data/assets`)
+avatar: 211214033.jpg
+
+# Sidebar configuration
+sidebar:
+  avatar: 211214033.jpg
+  # 文章目录（TOC）设置 - [新增]
+  toc:
+    expand: true
+    depth: 4
+
+# Cover
+# cover: /images/cover.jpg
+
+#---------------------------------------------------------------
+# 文章设置 - [新增/增强]
+#---------------------------------------------------------------
+post:
+  # 文章元信息显示设置
+  meta:
+    date: true      # 创建日期
+    updated: true   # 更新日期
+    categories: true # 分类
+  # 文章末尾的版权信息
+  copyright:
+    enable: true
+    type: "creative-commons"
+    license: "BY-NC-SA"
+    author: true
+    link: true
+    license_text: "知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议"
+
+#---------------------------------------------------------------
+# 打赏功能 - [硬核修复版]
+#---------------------------------------------------------------
+reward:
+  enable: true
+  # 账户设置：已通过 theme-patcher.js 脚本硬删除支付宝
+  # 你只需要在这里列出你想要显示的收款码文件名即可
+  account:
+    wechatpay: /wechat-pay.png
+    "USDT(TRC20)": /usdt-trc20.png
+    "USDT(Aptos)": /usdt-aptos.png
+
+#---------------------------------------------------------------
+# 页脚 (Footer) 设置 - [合并增强]
+#---------------------------------------------------------------
+# 基础版权文字 (保留你的原设置)
+copyright: © 2026 LengFengY. All rights reserved.
+
+# 高级页脚设置 (图标、统计等)
+footer:
+  since: 2025
+  powered: true
+  count: true
+  icon:
+    name: sakura rotate
+    color: "#ff69b4"
+
+# Highlight.js configuration
+highlight:
+  enable: true
+
+# Prismjs configuration
+prismjs:
+  enable: false
+
+# UIKit configuration
+uikit:
+  enable: true
+
+# Enable nyx-player
+nyx_player:
+  enable: true
+
+# Disable cover generation when there are fewer than required images
+homeConfig:
+  gradient: false # 使用CSS渐变作为文章封面
+  # fixedCover 性能比默认的更好，且开启时将启用LCP优化和预加载
+  fixedCover: https://pub-28a25d97afbd45fdba5366e39cf5f003.r2.dev/yamada-ryo-lawson.jpg # 主页面cover
+  coverConfig:
+    enableCover: true
+    enablePreload: true
+
+# Image configuration for random covers
+image_server: https://www.loliapi.com/acg/
+
+# Modules
+modules:
+  visibilityListener: false
+
+# Experimental features
+experiments:
+  antiFakeWebsite: false
+
+# Search
+# See: https://docs.shokax.kaitaku.xyz/features/search/#pagefind-搜索
+# 注意：必须显式禁用 search 模块，否则会报 "Not initialized" 错误
+search:
+  enable: false
+pagefind:
+  enable: true
+
+#---------------------------------------------------------------
+# 评论系统 - Waline
+# 文档: https://waline.js.org/
+#---------------------------------------------------------------
+waline:
+  enable: true
+  # 你的 Waline 服务端地址，请按照 Waline 文档部署后填入
+  # 例如: https://your-waline-server.vercel.app
+  serverURL: https://waline.yamadaryo.me/
+  # 语言
+  lang: "zh-CN"
+  # 评论者信息字段
+  meta:
+    - nick
+    - mail
+    - link
+  # 必填项
+  requiredMeta:
+    - nick
+    - mail
+  # 表情包
+  emoji:
+    - https://unpkg.com/@waline/emojis@1.2.0/weibo
+    - https://unpkg.com/@waline/emojis@1.2.0/tieba
+  # 开启文章阅读量统计
+  pageview: true

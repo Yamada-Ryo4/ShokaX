@@ -1,0 +1,102 @@
+/* 
+ * CRITICAL FIX: STOP SIDEBAR LAYOUT THRASHING
+ * The theme's JS repeatedly toggles the .affix class on scroll, which changes the sidebar
+ * from static to fixed. On short pages, this collapses the document height, forcing the
+ * scroll position to jump, which untoggles the class, creating an infinite loop (shaking).
+ *
+ * SOLUTION: We neutralize the .affix class and use native CSS position: sticky instead.
+ */
+
+/* 1. Force Sidebar Container to Maintain Height */
+main>.inner {
+  /* Ensure sidebar and content are same height so sticky works */
+  align-items: stretch !important;
+}
+
+#sidebar {
+  /* Prevent sidebar from collapsing when inner is fixed/sticky */
+  height: auto !important;
+  min-height: 100% !important;
+  /* Disable theme's scrolling handling on sidebar */
+  overflow: visible !important;
+  /* Fix Width Consistency: Force 15rem (standard wide width) */
+  width: 15rem !important;
+  min-width: 15rem !important;
+  flex-basis: 15rem !important;
+}
+
+/* 2. Use Native Sticky Positioning */
+#sidebar>.inner {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  /* Reset width to ensure it fits in the flex column */
+  width: 100% !important;
+  z-index: 10 !important;
+}
+
+/* 3. Neutralize Theme's JS Affix Logic */
+#sidebar.affix>.inner {
+  /* Override the fixed positioning that causes the crash */
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+/* 4. Fix Footer/Content Jitter */
+/* Force Native Scrolling but allow Window-level scroll event */
+html,
+body {
+  height: auto !important;
+  min-height: 100vh !important;
+  /* overflow-y: scroll !important; Removed to allow window scroll */
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable !important;
+}
+
+/* 5. Fix Ghosting/Double Layer Issue */
+#main {
+  /* Make main content opaque so you don't see the background image through it twice */
+  background: var(--grey-1) !important;
+  /* Ensure it has a layer */
+  position: relative !important;
+  z-index: 5 !important;
+  /* Ensure it fills the space */
+  min-height: 100vh !important;
+  width: 100%;
+  /* Fallback */
+}
+
+/* 6. Fix Header/Parallax Stability */
+#imgs {
+  position: fixed !important;
+  z-index: -9 !important;
+  /* Disable JS transform animations that might de-sync */
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* 7. Grid Stability section removed to restore native theme styles */
+
+/* 8. Miscellaneous Fixes */
+.waves {
+  will-change: auto !important;
+  transform: none !important;
+}
+
+#footer {
+  /* Ensure footer has height and stacking context */
+  min-height: 120px;
+  position: relative;
+  z-index: 10;
+  background: var(--body-bg-shadow);
+}
+
+/* 9. Fix Brand/Title Scroll Visibility */
+/* Keep brand above background (-9) but below content (5) */
+/* Override theme's .affix z-index: -1 behavior */
+#brand,
+#brand.affix {
+  z-index: 1 !important;
+}

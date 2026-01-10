@@ -1,0 +1,38 @@
+# blog/source/_data/languages.yml
+
+# 这个文件用于覆盖主题默认的文字
+# 只需要写你想修改的部分即可
+zh-CN:
+  # 导航菜单旁边的站点概览标题
+  sidebar:
+    overview: 站点概览
+    toc: 文章目录
+  
+  # 文章末尾的相关文字
+  post:
+    copyright:
+      author: 本文作者
+      link: 本文链接
+      license_title: 版权声明
+      license_content: '本博客所有文章除特别声明外，均采用 %s 许可协议。转载请注明出处！'
+
+  # 页脚文字
+  footer:
+    powered: "由 %s 驱动" # %s 会被替换为 Hexo 链接
+
+  # 各种统计时间的单位
+  symbols_count_time:
+    word: 字
+    count_total: "站点总字数"
+    time_total: "站点阅读时长"
+    time_minutes: '分钟'
+
+  # 翻页按钮
+  pagination:
+    prev: 上一篇
+    next: 下一篇
+
+  # 赞赏区域文字
+  reward:
+    donate: 赞赏
+    text: "请我喝一杯咖啡~(￣▽￣)~*"
