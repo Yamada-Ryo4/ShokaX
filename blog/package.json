@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate && npx pagefind --site public",
+    "build": "node scripts/patch-logs.js && hexo generate && npx pagefind --site public",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "server": "hexo server"
