@@ -1,10 +1,10 @@
 ---
-title: 开发日志 (Development Log)
+title: ShokaXBlog 开发日志
 date: 2026-01-10 03:20:31
 type: "logs"
 layout: "page"
 ---
-# 开发日志 (Development Log)
+# ShokaXBlog 开发日志 (Development Log)
 
 ## 2026-01-10
 - **任务**: 配置自定义与界面文本修改
