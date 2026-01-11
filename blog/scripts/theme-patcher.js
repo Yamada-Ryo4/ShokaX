@@ -1,7 +1,7 @@
 /**
- * 核心样式及逻辑持久化补丁 (Theme Patcher) - V19 丝滑切换版
- * - [V18] 修复视频与图片重叠。
- * - [V19] 解决切回图片时的"灰色闪烁"问题：增加延迟隐藏逻辑。
+ * 核心样式及逻辑持久化补丁 (Theme Patcher) - V20 自动播放版
+ * - [V19] 解决切回图片时的"灰色闪烁"问题。
+ * - [V20] 开启网页自动加载视频壁纸功能。
  */
 
 // 1. 数据级修复
@@ -42,17 +42,15 @@ hexo.extend.filter.register('after_render:html', function(str, data) {
             position: absolute !important; top: 0; left: 0; 
             width: 100%; height: 100%; object-fit: cover;
             z-index: -2 !important; 
-            transition: opacity 0.4s ease-in-out; /* 视频本身也增加渐变 */
+            transition: opacity 0.4s ease-in-out;
         }
 
-        /* 图片切换渐变 */
         #imgs img, #imgs ul { transition: opacity 0.4s ease-in-out !important; }
         .video-playing #imgs img, .video-playing #imgs ul { opacity: 0 !important; }
 
         #tool { position: fixed !important; z-index: 10000 !important; }
         #playBtn { cursor: pointer !important; }
 
-        /* 打赏优化 */
         #qr > div { display: inline-block !important; margin: 2rem !important; vertical-align: top !important; background: transparent !important; }
         #qr > div > img {
             width: 12rem !important; height: 12rem !important;
@@ -80,6 +78,7 @@ hexo.extend.filter.register('after_render:html', function(str, data) {
                 video.loop = true;
                 video.muted = true;
                 video.setAttribute('playsinline', '');
+                video.setAttribute('autoplay', '');
                 imgs.appendChild(video);
                 videoElement = video;
             }
@@ -91,18 +90,26 @@ hexo.extend.filter.register('after_render:html', function(str, data) {
                     document.body.classList.add('video-playing');
                 }).catch(err => console.error(err));
             } else {
-                // 丝滑切回逻辑：先让图片显示
                 document.body.classList.remove('video-playing');
-                // 稍微延迟隐藏视频，等待图片淡入完成
                 setTimeout(function() {
                     if (!document.body.classList.contains('video-playing')) {
                         video.pause();
                         video.style.display = 'none';
                     }
-                }, 400); // 对应 CSS 的 0.4s transition
+                }, 400);
                 isPlaying = false;
             }
         }
+
+        // 自动播放逻辑：检测到容器即加载
+        var autoPlayCheck = setInterval(function() {
+            var imgs = document.getElementById('imgs');
+            if (imgs) {
+                clearInterval(autoPlayCheck);
+                handlePlay();
+            }
+        }, 100);
+
         var checkInterval = setInterval(function() {
             var btn = document.getElementById('playBtn');
             if (btn && !btn.hasAttribute('data-patched')) {
