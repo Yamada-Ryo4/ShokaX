@@ -102,3 +102,8 @@
 - ✅ 完整元数据：日期、字数（如 1.1k字）、阅读时间（如 1 分钟）
 - ✅ 摘要内容和 "more..." 按钮
 - ✅ 左侧边栏完整显示
+
+**D. 部署问题修复**
+- 问题: 推送到 GitHub 后 Cloudflare 构建的网站 logs 页面空白（因 `node_modules` 被 gitignore 忽略）
+- 解决方案: 创建 `scripts/patch-logs.js` 脚本在构建时自动修补 `logs.pug`
+- 更新 `package.json` 的 build 脚本为: `node scripts/patch-logs.js && hexo generate && npx pagefind --site public`

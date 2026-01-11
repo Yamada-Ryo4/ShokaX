@@ -74,4 +74,6 @@ layout: "page"
     - ✅ 完整元数据：日期、字数、阅读时间
     - ✅ 摘要内容和 "more..." 按钮
     - ✅ 左侧边栏完整显示
-
+    - **部署问题修复**:
+        - 创建 `scripts/patch-logs.js` 脚本在构建时自动修补 `logs.pug`
+        - 更新 `package.json` 的 build 脚本确保部署时布局正确
