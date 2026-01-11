@@ -15,6 +15,7 @@ menu:
   tags: /tags/ || tags
   categories: /categories/ || th
   about: /about/ || user
+  logs: /logs/ || history
 
 # Social Links
 social:
