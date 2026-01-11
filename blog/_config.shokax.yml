@@ -15,7 +15,7 @@ menu:
   tags: /tags/ || tags
   categories: /categories/ || th
   about: /about/ || user
-  logs: /logs/ || terminal
+  logs: /logs/ || feather
 
 # Social Links
 social:
