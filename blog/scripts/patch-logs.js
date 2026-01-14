@@ -19,7 +19,7 @@ block content
     div(class="index wrap")
         h2(class="divider")
             != __('title.logs') || 'Development Logs'
-        - var logs = site.pages.toArray().filter(p => p.source && p.source.replace(/\\\\/g, '/').startsWith('logs/') && !p.source.endsWith('index.md') && p.permalink)
+        - var logs = site.pages.toArray().filter(p => p.source && p.source.replace(/\\\\/g, '/').startsWith('logs/') && !p.source.endsWith('index.md') && p.permalink).sort((a, b) => new Date(b.date) - new Date(a.date))
         if logs && logs.length > 0
             div(class="segments posts")
                 each log in logs
