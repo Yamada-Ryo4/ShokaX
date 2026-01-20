@@ -1,6 +1,6 @@
 ---
 title: ChatBot Watch App 完全更新日志
-date: 2026-01-13 18:52:46
+date: 2026-01-21 02:08:00
 updated: 2026-01-21 02:08:00
 type: "logs"
 layout: "page"
@@ -32,8 +32,6 @@ layout: "page"
   - `@Published var showModelNameInNavBar: Bool`
   - `@Published var showScrollToBottomButton: Bool`
   - `@Published var isInputVisible: Bool`
-- **新增供应商**（已移除 API Key）：
-  - Gcli、Gcli2、Antigravity（后由用户手动删除）
 - **模型名称缓存**：
   - 新增 `_cachedModelName` 和 `_cachedModelID`，减少遍历计算。
 
