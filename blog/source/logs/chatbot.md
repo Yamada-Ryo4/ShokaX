@@ -1,7 +1,7 @@
 ---
 title: ChatBot Watch App 完全更新日志
-date: 2026-01-21 02:08:00
-updated: 2026-01-21 02:08:00
+date: 2026-01-21 02:30:00
+updated: 2026-01-21 02:30:00
 type: "logs"
 layout: "page"
 ---
@@ -12,7 +12,31 @@ layout: "page"
 
 ---
 
-## 🆕 2026-01-21 更新
+## 🔥 2026-01-21 紧急修复 (Critical Hotfix)
+
+> **摘要**：修复了流式传输期间退出 App 导致的闪退，以及因数据损坏导致 App 永久无法打开的致命 Bug。
+
+### 文件: [ChatView.swift](cci:7://file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ChatView.swift:0:0-0:0)
+- **后台防崩机制 (Background Protection)**:
+  - 引入 `@Environment(\.scenePhase)` 监听应用生命周期。
+  - **核心逻辑**：当 App 进入后台 (`.inactive` 或 `.background`) 时，立即调用 `viewModel.stopGeneration()` 强行中断生成。
+  - *修复问题*：解决了流式输出未完成时用户按下表冠退出，后台线程尝试刷新 UI 导致的 WatchOS 系统强制崩溃 (Watchdog Termination)。
+
+### 文件: [ViewModels.swift](cci:7://file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ViewModels.swift:0:0-0:0)
+- **启动容错 (Safe Boot)**:
+  - 重写 `init()` 中的数据加载逻辑，将原本的 `try?` 替换为完整的 `do-catch` 结构。
+  - **自动修复**：若检测到本地 `UserDefaults` 中的 JSON 数据损坏（Crash Loop 的元凶），自动捕获错误并重置为空列表，优先保住 App 正常启动。
+  - *修复问题*：解决了因一次意外崩溃导致本地数据写坏，进而导致 App 每次启动即闪退（Persistent Crash）的问题。
+
+### 文件: [LLMService.swift](cci:7://file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/LLMService.swift:0:0-0:0)
+- **僵尸任务清理 (Zombie Task Killing)**:
+  - 在 `streamOpenAIChat` 和 `streamGeminiChat` 的 `AsyncThrowingStream` 中添加 `continuation.onTermination` 回调。
+  - **联动取消**：当 UI 层取消任务时，强制通过 `task.cancel()` 切断底层的 `URLSession` 网络连接。
+  - *优化*：防止 UI 停止生成后，后台仍在默默下载数据，既浪费电量又可能导致数据错乱写入。
+
+---
+
+## 🆕 2026-01-21 更新 (功能特性)
 
 ### 文件: [ChatView.swift](cci:7://file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ChatView.swift:0:0-0:0)
 - **回到底部浮动按钮 (Scroll-to-Bottom Button)**：
@@ -109,4 +133,4 @@ layout: "page"
 ---
 
 ## 📝 总结
-本次更新从**底层架构**（防崩溃）、**渲染层**（数理化/表格增强）到**交互层**（震动/大按钮/原始模式/回到底部）进行了全方位的改造。现在它不仅仅是一个能用的 App，更是一个稳定、好用且强大的解题助手。
+本次更新（2026-01-21 Hotfix）**彻底解决了应用的稳定性问题**。通过引入后台生命周期管理和数据加载容错机制，消除了用户在流式输出期间退出 App 导致崩溃的风险，并确保了即使数据损坏也能自我恢复。现在的版本在功能丰富的基础上，达到了生产环境级别的健壮性。
