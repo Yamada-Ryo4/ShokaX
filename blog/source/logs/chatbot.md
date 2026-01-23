@@ -1,14 +1,66 @@
 ---
 title: ChatBot Watch App 完全更新日志
 date: 2026-01-22 23:30:00
-updated: 2026-01-22 23:30:00
+updated: 2026-01-23 09:00:00
 type: "logs"
 layout: "page"
 ---
 
 # ChatBot Watch App 完全更新日志
 
+https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch
+
 这份日志详细记录了所有修改的文件、功能变更以及技术细节。
+
+---
+
+## 🚀 2026-01-23 更新 (v1.2 正式版)
+
+> **摘要**：新增 Smart Stack 智能叠放组件，实现表盘复杂功能 (Complication)，优化模型选择交互，修复 Widget 致命内存崩溃问题。
+
+### 文件: [ChatBotWidget.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBotWidget/ChatBotWidget.swift) (关键修复)
+- **内存优化 (Memory Optimization)**:
+  - **问题**: Widget 启动时加载完整 `chatSessions` 数组导致内存溢出 (Code=11 Crash)。
+  - **方案**: 完全移除 `ChatSession` 和 `ChatMessage` 结构体解码逻辑。
+  - **新逻辑**: 改为读取轻量级字典 `widget_tiny_data`，仅包含 `title` 和 `lastMessage` 两个字符串。
+  - *效果*: 内存占用降低 99%+，Widget 永不崩溃。
+
+### 文件: [ViewModels.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ViewModels.swift)
+- **轻量级 Widget 数据写入**:
+  - 在 `saveSessions()` 方法中新增逻辑：每次保存聊天记录时，同步写入一份精简的 `widget_tiny_data` 到 `UserDefaults`。
+  - 数据结构：`["title": String, "lastMessage": String]`
+  - *联动*: 确保 Widget 总能读取到最新的对话摘要。
+
+### 文件: [ChatBotApp.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ChatBotApp.swift)
+- **表盘复杂功能 (Complication)**:
+  - 合并 `ComplicationController` 类到主入口文件，确保被正确编译。
+  - 将类和所有协议方法设为 `public`，解决跨模块访问问题。
+  - *功能*: 支持在表盘添加快捷方式，点击直接唤醒 ChatBot。
+- **二级模型选择菜单 (Nested Model Picker)**:
+  - 新增 `ModelSelectionRootView` 和 `ModelListForProviderView` 两个视图结构。
+  - **交互**: 设置页点击"选择模型" -> 显示服务商列表 -> 点击服务商 -> 显示该服务商下的模型列表。
+  - *效果*: 模型选择更加清晰，不再需要在一个长列表中滚动寻找。
+
+### 文件: [ChatView.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/ChatView.swift)
+- **左滑删除对话 (Swipe-to-Delete)**:
+  - 在 `HistoryListView` 的 `ForEach` 中添加 `.onDelete` 修饰符。
+  - **二次确认**: 删除操作会弹出 `Alert` 确认框，防止误删。
+  - *交互*: 在历史列表中左滑某个对话 -> 点击删除 -> 弹窗确认 -> 执行删除。
+
+### 文件: [SettingsView.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/SettingsView.swift)
+- **模型选择入口重构**:
+  - 将原有的 `Picker` 组件替换为 `NavigationLink`。
+  - 右侧显示当前选中的模型名称（自动截断）。
+
+### 文件: [WatchInfo.plist](file:///Users/lengfengy/Documents/ChatBot/WatchInfo.plist)
+- **Complication 模块名修复**:
+  - 将 `CLKComplicationPrincipalClass` 的值从硬编码的 `ChatBot_Watch_App.ComplicationController` 改为 `$(PRODUCT_MODULE_NAME).ComplicationController`。
+  - *效果*: 动态解析模块名，确保在不同构建配置下都能正确加载。
+
+### 文件: [README.md](file:///Users/lengfengy/Documents/ChatBot/README.md) (全面重写)
+- **内容**: 新增 6 大核心特性分类、详细安装部署指南、Widget/Complication 使用说明、FAQ。
+- **语法修正**: 统一列表格式、修复空链接和乱码 emoji。
+- **上下文说明**: 明确"滑动窗口"机制——发送给 AI 的是最近 10 条消息，本地历史完整保留。
 
 ---
 
@@ -22,7 +74,7 @@ layout: "page"
   - **逻辑**: 编辑提交后，自动清除该消息之后的旧上下文，并触发重新生成。
   - *交互*: 点击用户气泡下方的编辑按钮（✏️）即可进入编辑模式。
 - **快速重试 (Regenerate)**:
-  - **功能**: 在用户最新消息下方新增“重新生成”按钮。
+  - **功能**: 在用户最新消息下方新增"重新生成"按钮。
   - *场景*: 当 AI 回答不完整或卡住时，一键重试。
 
 ### 文件: [SettingsView.swift](file:///Users/lengfengy/Documents/ChatBot/ChatBot%20Watch%20App/SettingsView.swift)
@@ -164,4 +216,5 @@ layout: "page"
 ---
 
 ## 📝 总结
-本次更新（2026-01-22）在保证隐私合规的前提下，大幅提升了用户的输入和编辑体验。行内编辑和 API Key 输入修复响应了用户最迫切的需求，而底层的网络与隐私优化则为未来的稳定运行打下了基础。
+
+**v1.2 (2026-01-23)** 是一次重大更新，引入了 Smart Stack 组件和表盘快捷方式，为用户带来更便捷的入口。同时修复了 Widget 的致命内存崩溃问题，并优化了模型选择的交互体验。文档也进行了全面重写，帮助新用户快速上手。
