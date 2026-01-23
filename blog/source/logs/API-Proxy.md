@@ -6,6 +6,8 @@ layout: "page"
 ---
 # Update Log
 
+https://github.com/Yamada-Ryo4/API-Proxy
+
 ## [2026-01-14] - Omni-Proxy Update
 
 本次更新重点扩展了对 OpenAI 和 Claude 的原生支持，并新增了跨协议转换功能（Gemini 伪装成 Claude），同时对文档进行了全面重构。
