@@ -1,7 +1,7 @@
 ---
 title: ChatBot Watch App 完全更新日志
 date: 2026-01-22 23:30:00
-updated: 2026-01-23 09:00:00
+updated: 2026-01-29 11:00:00
 type: "logs"
 layout: "page"
 ---
@@ -11,6 +11,98 @@ layout: "page"
 https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch
 
 这份日志详细记录了所有修改的文件、功能变更以及技术细节。
+
+---
+
+## 🎯 2026-01-29 更新 (v1.3 正式版)
+
+> **摘要**：重构 LaTeX 渲染系统，新增双模式切换、多 API Key 轮询、温度参数、系统提示词自定义等功能，大幅优化代码结构。
+
+### 文件: [ChatView.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/ChatView.swift)
+- **LaTeX 渲染双模式**:
+  - 新增 `SimpleLatexConverter` 简单模式，使用原生 `Text` + Unicode 符号替换，稳定可靠。
+  - 保留 `AdvancedLatexView` 高级模式，使用 FlowLayout + AST 解析，效果更精细。
+  - `MessageContentView` 根据设置自动切换渲染方式。
+- **嵌套 LaTeX 支持**:
+  - 支持 `$$` 双美元符号标记。
+  - 预处理 `\text{}` 命令，避免花括号干扰正则匹配。
+  - 迭代处理 `\frac{}{}` 支持深层嵌套（最多 10 层）。
+  - 单独处理 `\sqrt{}` 显示为 `√(内容)`。
+- **根号视图优化**:
+  - 高级模式使用 `overlay` 绘制横线，宽度自动匹配内容，不再溢出。
+  - 添加 `.fixedSize()` 防止视图扩展。
+- **代码优化**:
+  - 符号映射表（希腊字母、数学运算符、上下标）改为静态常量。
+  - 正则表达式缓存为静态属性，避免每次调用重新编译。
+  - 删除约 200 行冗余代码。
+
+### 文件: [ViewModels.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/ViewModels.swift)
+- **新增设置项**:
+  - `@AppStorage("latexRenderingEnabled")` - LaTeX 数学公式渲染开关（默认开启）。
+  - `@AppStorage("advancedLatexEnabled")` - 高级渲染模式开关（默认关闭）。
+  - `@AppStorage("enableHapticFeedback")` - 振动反馈开关（默认开启）。
+  - `@AppStorage("historyMessageCount")` - 可配置对话历史数量（5-50 条，默认 10 条）。
+  - `@AppStorage("customSystemPrompt")` - 自定义系统提示词。
+  - `@AppStorage("temperature")` - 温度参数 (0.0-2.0，默认 0.7)。
+- **条件性触觉反馈**:
+  - 所有 `WKInterfaceDevice.current().play(...)` 调用改为根据 `enableHapticFeedback` 设置决定是否执行。
+- **动态历史窗口**:
+  - `buildHistoryWithContext` 方法使用 `historyMessageCount` 配置值替代硬编码的 10 条。
+- **会话标题优化**:
+  - 标题自动使用用户首条消息的前 15 字符 + 省略号。
+  - 仅在标题为空或"新对话"时更新，避免覆盖已有标题。
+
+### 文件: [Models.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/Models.swift)
+- **多 API Key 支持 (Multi-Key Rotation)**:
+  - 重构 `ProviderConfig` 结构，将单一 `apiKey` 改为 `apiKeys: [String]` 数组。
+  - 新增 `currentKeyIndex` 跟踪当前使用的 Key 索引。
+  - 添加 `rotateKey()` 方法实现自动轮询。
+  - 保留向后兼容的 `apiKey` 计算属性，无缝升级。
+
+### 文件: [SettingsView.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/SettingsView.swift)
+- **新增「数学公式渲染」Section**:
+  - 「启用 LaTeX 渲染」Toggle 主开关。
+  - 「高级渲染模式」Toggle 子开关（仅在启用时显示）。
+  - 高级模式警告提示："可能导致排版错误和渲染问题"。
+- **新增「模型参数」Section**:
+  - 温度 Picker (0.0-2.0，步进 0.1)。
+  - 系统提示词编辑入口 (NavigationLink)。
+- **界面设置新增**:
+  - 「启用振动反馈」Toggle 开关。
+  - 「对话历史上下文」Picker 控件（5-50 条，步进 5）。
+- **多 Key 管理界面**:
+  - `ProviderDetailView` 重构为列表式 Key 管理。
+  - 显示所有已添加的 Key（掩码显示），当前使用的 Key 带 ✓ 标记。
+  - 支持删除单个 Key（至少保留一个）。
+- **新增 `SystemPromptEditView`**:
+  - 使用 `TextField` 多行输入。
+  - 保存/清空功能。
+- **UI 优化**:
+  - 全面移除设置页装饰性图标，回归原生简洁风格。
+  - 控件改为 Picker，交互更统一。
+
+### 文件: [LLMService.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/LLMService.swift)
+- **温度参数支持**:
+  - `streamChat` 方法签名新增 `temperature: Double` 参数。
+  - OpenAI: 将 temperature 加入请求 body。
+  - Gemini: 通过 `generationConfig` 传递 temperature。
+
+### 文件: [LaTeXParser.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/LaTeXParser.swift)
+- **数学符号增强**:
+  - **常用分数**：½, ⅓, ⅔, ¼, ¾ 等 15 个 Unicode 分数符号。
+  - **三角函数**：sin, cos, tan, cot, sec, csc, arcsin, arccos, arctan, sinh, cosh, tanh。
+  - **数学函数**：log, ln, exp, lg, lim, max, min, sup, inf, det, dim, ker, deg, gcd, lcm。
+  - **希腊字母**：扩充至完整大小写 24 个字母。
+  - **运算符**：新增 ∓, ≡, ∝, ∏, ∮, ∀, ∃, ∈, ∉, ⊂, ⊃, ⊆, ⊇, ∪, ∩, ∅, ⇐, ↔, ⇔, ∵, ∴, ∠, ⊥, ∥, △, ° 等。
+
+### Bug 修复
+- 修复 `SecureField` 导致无法使用手机键盘连续互通输入的问题，改用 `TextField`。
+- 修复供应商配置页因动态标题刷新导致输入中断的问题 (Title 改为静态)。
+- **LaTeX 渲染修复**:
+  - 增加对 `/cos`, `/sin` 等非标准前缀的容错支持。
+  - **分数优化**: 支持 `\frac{a}{b}` 的正确解析，不再因嵌套花括号失效。
+  - 引入 `FlowLayout` 实现图文混排，支持**长数字/长单词自动换行**。
+  - **逻辑修复**: 恢复了 components 模式下对上标(^)、下标(_)等符号的解析支持。
 
 ---
 
@@ -209,12 +301,16 @@ https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch
   - 在 `BottomInputArea` 中，当 `isLoading` 为 true 时，发送箭头变为红色停止方块。
 
 ### 文件: [ViewModels.swift](https://github.com/Yamada-Ryo4/ChatBot-For-Apple-Watch/blob/main/ChatBot%20Watch%20App/ViewModels.swift) (配置)
-- **免费模型内置**：
-  - 智谱 AI (GLM-4.6V-Flash)
-  - *状态*：已硬编码写入，开箱即用。
+- **预设服务商**：
+  - 智谱 AI、DeepSeek、硅基流动、阿里云百炼、ModelScope、OpenRouter、Gemini、GeminCLI。
+  - 用户需自行配置 API Key。
 
 ---
 
 ## 📝 总结
 
-**v1.2 (2026-01-23)** 是一次重大更新，引入了 Smart Stack 组件和表盘快捷方式，为用户带来更便捷的入口。同时修复了 Widget 的致命内存崩溃问题，并优化了模型选择的交互体验。文档也进行了全面重写，帮助新用户快速上手。
+**v1.3 (2026-01-29)** 是一次重大更新，重构了 LaTeX 渲染系统并提供双模式选择，新增多 API Key 轮询、温度参数、系统提示词等高级功能，同时大幅优化代码结构和性能。
+
+**v1.2 (2026-01-23)** 引入了 Smart Stack 组件和表盘快捷方式，修复了 Widget 的致命内存崩溃问题。
+
+**v1.1 及更早版本** 完成了核心功能的开发和稳定性修复。
